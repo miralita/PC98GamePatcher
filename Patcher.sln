@@ -3,18 +3,37 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patcher", "Patcher\Patcher.csproj", "{220F6293-A41E-4AD2-8F09-221F9AB2D695}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatchBuilder", "PatchBuilder\PatchBuilder.csproj", "{19172FF0-1AB5-44D2-B68C-837E6377BDF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC98GamePatcher", "PC98GamePatcher\PC98GamePatcher.csproj", "{226CE453-E104-47FC-A916-3FA27AF34EAD}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTypes", "CommonTypes\CommonTypes.shproj", "{92949B79-D1C6-4F2E-AA47-1D14620A2C91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractBytes", "ExtractBytes\ExtractBytes.csproj", "{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CommonTypes\CommonTypes.projitems*{19172ff0-1ab5-44d2-b68c-837e6377bdf0}*SharedItemsImports = 4
+		CommonTypes\CommonTypes.projitems*{226ce453-e104-47fc-a916-3fa27af34ead}*SharedItemsImports = 4
+		CommonTypes\CommonTypes.projitems*{92949b79-d1c6-4f2e-aa47-1d14620a2c91}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{220F6293-A41E-4AD2-8F09-221F9AB2D695}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{220F6293-A41E-4AD2-8F09-221F9AB2D695}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{220F6293-A41E-4AD2-8F09-221F9AB2D695}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{220F6293-A41E-4AD2-8F09-221F9AB2D695}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19172FF0-1AB5-44D2-B68C-837E6377BDF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19172FF0-1AB5-44D2-B68C-837E6377BDF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19172FF0-1AB5-44D2-B68C-837E6377BDF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19172FF0-1AB5-44D2-B68C-837E6377BDF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{226CE453-E104-47FC-A916-3FA27AF34EAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{226CE453-E104-47FC-A916-3FA27AF34EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{226CE453-E104-47FC-A916-3FA27AF34EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{226CE453-E104-47FC-A916-3FA27AF34EAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

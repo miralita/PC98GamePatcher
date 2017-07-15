@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{220F6293-A41E-4AD2-8F09-221F9AB2D695}</ProjectGuid>
+    <ProjectGuid>{429BAE6C-01F4-499F-8AEA-7FA7E5EAF9C1}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Patcher</RootNamespace>
-    <AssemblyName>Patcher</AssemblyName>
+    <RootNamespace>ExtractBytes</RootNamespace>
+    <AssemblyName>ExtractBytes</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
