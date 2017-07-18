@@ -9,6 +9,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DiscUtils.Fat;
+using DiscUtils.Fdi;
 using PatchBuilder;
 
 namespace PC98GamePatcher
@@ -51,17 +53,43 @@ namespace PC98GamePatcher
                 };
                 if (dialog.ShowDialog() == DialogResult.OK) {
                     _sourceName = dialog.FileName;
-                    bSelectPatch.Enabled = true;
+                    bSelectSysDisk.Enabled = true;
                 }
             } else {
                 var dialog = new FolderBrowserDialog();
                 dialog.Description = "Choose a folder containing FDI images";
                 dialog.SelectedPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
                 if (dialog.ShowDialog() == DialogResult.OK) {
-                    _sourceName = dialog.SelectedPath;
-                    bSelectPatch.Enabled = true;
+                    if (CheckFdiSource(dialog.SelectedPath)) {
+                        _sourceName = dialog.SelectedPath;
+                        bSelectSysDisk.Enabled = true;
+                    } else {
+                        MessageBox.Show("Selected directory doesn't contains FDI images");
+                    }
                 }
             }
+        }
+
+        private bool CheckFdiSource(string dirname) {
+            var files = Directory.GetFiles(dirname);
+            var found = false;
+            var sys_found = false;
+            foreach (var file in files) {
+                if (!file.ToLower().Contains(".fdi")) continue;
+                using (var disk = Disk.OpenDisk(file, FileAccess.Read)) {
+                    using (var fs = new PC98FatFileSystem(disk.Content)) {
+                        if (fs.FileExists(@"\HDFORMAT.EXE") && fs.FileExists(@"\MSDOS.SYS")) {
+                            _sysImage = file;
+                            sys_found = true;
+                            bSelectPatch.Enabled = true;
+                        } else {
+                            found = true;
+                        }
+                    }
+                }
+                if (found && sys_found) break;
+            }
+            return found;
         }
 
         private void bSelectPatch_Click(object sender, EventArgs e) {
@@ -75,7 +103,7 @@ namespace PC98GamePatcher
                 try {
                     if (LoadPatch(dialog.FileName)) {
                         _patchFile = dialog.FileName;
-                        bSelectSysDisk.Enabled = true;
+                        bApplyPatch.Enabled = true;
                     } else {
                         MessageBox.Show("Can't load patch file",
                             "Can't load and parse the patch. Please select another file");
@@ -142,7 +170,7 @@ namespace PC98GamePatcher
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 _sysImage = dialog.FileName;
-                bApplyPatch.Enabled = true;
+                bSelectPatch.Enabled = true;
             }
         }
 

@@ -35,8 +35,8 @@
             this.rbFDI = new System.Windows.Forms.RadioButton();
             this.rbHDI = new System.Windows.Forms.RadioButton();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.lProgress = new System.Windows.Forms.Label();
             this.bDone = new System.Windows.Forms.Button();
+            this.lProgress = new System.Windows.Forms.Label();
             this.tabWizard.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -72,31 +72,31 @@
             // bSelectSysDisk
             // 
             this.bSelectSysDisk.Enabled = false;
-            this.bSelectSysDisk.Location = new System.Drawing.Point(20, 109);
+            this.bSelectSysDisk.Location = new System.Drawing.Point(122, 83);
             this.bSelectSysDisk.Name = "bSelectSysDisk";
             this.bSelectSysDisk.Size = new System.Drawing.Size(98, 34);
             this.bSelectSysDisk.TabIndex = 5;
-            this.bSelectSysDisk.Text = "3. Select DOS installation image";
+            this.bSelectSysDisk.Text = "2. Select DOS installation image";
             this.bSelectSysDisk.UseVisualStyleBackColor = true;
             this.bSelectSysDisk.Click += new System.EventHandler(this.bSelectSysDisk_Click);
             // 
             // bSelectPatch
             // 
             this.bSelectPatch.Enabled = false;
-            this.bSelectPatch.Location = new System.Drawing.Point(128, 83);
+            this.bSelectPatch.Location = new System.Drawing.Point(20, 120);
             this.bSelectPatch.Name = "bSelectPatch";
-            this.bSelectPatch.Size = new System.Drawing.Size(92, 23);
+            this.bSelectPatch.Size = new System.Drawing.Size(98, 23);
             this.bSelectPatch.TabIndex = 4;
-            this.bSelectPatch.Text = "2. Select patch";
+            this.bSelectPatch.Text = "3. Select patch";
             this.bSelectPatch.UseVisualStyleBackColor = true;
             this.bSelectPatch.Click += new System.EventHandler(this.bSelectPatch_Click);
             // 
             // bApplyPatch
             // 
             this.bApplyPatch.Enabled = false;
-            this.bApplyPatch.Location = new System.Drawing.Point(128, 109);
+            this.bApplyPatch.Location = new System.Drawing.Point(122, 120);
             this.bApplyPatch.Name = "bApplyPatch";
-            this.bApplyPatch.Size = new System.Drawing.Size(92, 34);
+            this.bApplyPatch.Size = new System.Drawing.Size(98, 23);
             this.bApplyPatch.TabIndex = 3;
             this.bApplyPatch.Text = "4. Apply patch";
             this.bApplyPatch.UseVisualStyleBackColor = true;
@@ -107,7 +107,7 @@
             this.bSelectSource.Enabled = false;
             this.bSelectSource.Location = new System.Drawing.Point(20, 83);
             this.bSelectSource.Name = "bSelectSource";
-            this.bSelectSource.Size = new System.Drawing.Size(98, 23);
+            this.bSelectSource.Size = new System.Drawing.Size(98, 34);
             this.bSelectSource.TabIndex = 1;
             this.bSelectSource.Text = "1. Select source";
             this.bSelectSource.UseVisualStyleBackColor = true;
@@ -161,15 +161,6 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // lProgress
-            // 
-            this.lProgress.Location = new System.Drawing.Point(59, 58);
-            this.lProgress.Name = "lProgress";
-            this.lProgress.Size = new System.Drawing.Size(104, 13);
-            this.lProgress.TabIndex = 0;
-            this.lProgress.Text = "Applying the patch...";
-            this.lProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // bDone
             // 
             this.bDone.Location = new System.Drawing.Point(74, 58);
@@ -179,6 +170,15 @@
             this.bDone.Text = "Done";
             this.bDone.UseVisualStyleBackColor = true;
             this.bDone.Click += new System.EventHandler(this.bDone_Click);
+            // 
+            // lProgress
+            // 
+            this.lProgress.Location = new System.Drawing.Point(59, 58);
+            this.lProgress.Name = "lProgress";
+            this.lProgress.Size = new System.Drawing.Size(104, 13);
+            this.lProgress.TabIndex = 0;
+            this.lProgress.Text = "Applying the patch...";
+            this.lProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
