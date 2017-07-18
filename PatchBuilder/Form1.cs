@@ -140,9 +140,9 @@ namespace PatchBuilder {
         private void SavePatch(PatchContainer patchResult) {
             var dialog = new SaveFileDialog {
                 Title = "Choose where to save patch",
-                Filter = "BIN files (*.bin)|*.bin|All files (*.*)|*.*",
+                Filter = "PC98 files (*.pc98)|*.pc98|All files (*.*)|*.*",
                 FilterIndex = 0,
-                DefaultExt = "hdi"
+                DefaultExt = "pc98"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 patchResult.Save(dialog.FileName);

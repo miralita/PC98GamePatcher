@@ -67,9 +67,9 @@ namespace PC98GamePatcher
         private void bSelectPatch_Click(object sender, EventArgs e) {
             var dialog = new OpenFileDialog {
                 Title = "Choose patch file",
-                Filter = "Patch files (*.bin)|*.bin|All files (*.*)|*.*",
+                Filter = "Patch files (*.pc98)|*.pc98|All files (*.*)|*.*",
                 FilterIndex = 0,
-                DefaultExt = "bin"
+                DefaultExt = "pc98"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 try {
