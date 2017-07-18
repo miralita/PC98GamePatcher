@@ -9,6 +9,17 @@
     <Import_RootNamespace>CommonTypes</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\BsDiff\BsDiff.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\BsDiff\BsPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\BZip2Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\BZip2Exception.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\BZip2InputStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\BZip2OutputStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\Checksums\IChecksum.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Bzip2\Checksums\StrangeCrc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\SuffixSort\ISuffixSort.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)deltaq\SuffixSort\SAIS.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatchContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PatchedFile.cs" />
   </ItemGroup>

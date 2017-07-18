@@ -17,5 +17,10 @@ namespace PatchBuilder
         public byte[] FileData;
         public byte[] Patch;
         public string OriginalMd5Sum;
+        public bool Processed;
+
+        public override string ToString() {
+            return Name;
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using CodeIsle.LibIpsNet;
+using deltaq.BsDiff;
 using DiscUtils.Fat;
 
 namespace PatchBuilder
@@ -72,8 +72,10 @@ namespace PatchBuilder
             var files = originalFs.GetFiles(@"\");
             var sysFiles = new List<string>();
             foreach (var file in files) {
-                if (IsSysFile(file)) {
+                if (IsSysFile(file.TrimStart('\\'))) {
                     sysFiles.Add(file);
+                    var info = originalFs.GetFileInfo(file);
+                    patchResult.TotalSize += info.Length;
                 }
             }
             patchResult.SysFiles = sysFiles.ToArray();
@@ -95,23 +97,28 @@ namespace PatchBuilder
                                 if (useOriginal) {
                                     origFh.Position = 0;
                                     fileInfo.FileData = DumpStream(origFh);
+                                    patchResult.TotalSize += origFh.Length;
                                 } else {
                                     translatedFh.Position = 0;
                                     fileInfo.FileData = DumpStream(translatedFh);
+                                    patchResult.TotalSize += translatedFh.Length;
                                 }
                             } else {
                                 origFh.Position = 0;
                                 fileInfo.FileData = DumpStream(origFh);
+                                patchResult.TotalSize += origFh.Length;
                             }
                         }
                     }
                 } else if (originalFs.FileExists(file)) {
                     using (var origFh = originalFs.OpenFile(file, FileMode.Open)) {
                         fileInfo.FileData = DumpStream(origFh);
+                        patchResult.TotalSize += origFh.Length;
                     }
                 } else if (translatedFs.FileExists(file)) {
                     using (var translatedFh = translatedFs.OpenFile(file, FileMode.Open)) {
                         fileInfo.FileData = DumpStream(translatedFh);
+                        patchResult.TotalSize += translatedFh.Length;
                     }
                 } else {
                     continue;
@@ -133,11 +140,13 @@ namespace PatchBuilder
                         file.Action = PatchAction.Copy;
                         using (var fh = translatedFs.OpenFile(key, FileMode.Open)) {
                             file.FileData = DumpStream(fh);
+                            patchResult.TotalSize += fh.Length;
                         }
                         patchResult.Add(file);
                     } else if (ret == AskActionResult.Ask) {
                         file.Action = PatchAction.Ask;
                         patchResult.Add(file);
+                        patchResult.TotalSize += 65 * 1024;
                     }
                 }
             }
@@ -168,14 +177,17 @@ namespace PatchBuilder
                 } else if (originalList[key] != translatedList[key]) {
                     file.Action = PatchAction.Patch;
                     using (var ms = new MemoryStream()) {
-                        var creator = new Creator();
                         using (var src = originalFs.OpenFile(key, FileMode.Open)) {
                             using (var patched = translatedFs.OpenFile(key, FileMode.Open)) {
-                                creator.Create(src, patched, ms);
+                                BsDiff.Create(src, patched, ms);
+                                patchResult.TotalSize += patched.Length;
                             }
                         }
                         file.Patch = ms.ToArray();
                     }
+                } else {
+                    var info = originalFs.GetFileInfo(key);
+                    patchResult.TotalSize += info.Length;
                 }
                 patchResult.Add(file);
             }

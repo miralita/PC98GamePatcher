@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -269,6 +270,53 @@ namespace PC98GamePatcher
             }
         }
 
+        public static Disk CreateDisk(string filename, string dosDisk, int length, string[] sysFiles) {
+            if (File.Exists(filename)) File.Delete(filename);
+            HddType size;
+            if (length == 5) size = HddType.Size5Mb;
+            else if (length == 10) size = HddType.Size10Mb;
+            else if (length == 15) size = HddType.Size15Mb;
+            else if (length == 20) size = HddType.Size20Mb;
+            else if (length == 30) size = HddType.Size30Mb;
+            else if (length == 40) size = HddType.Size40Mb;
+            else throw new ArgumentOutOfRangeException("Unsupported image size");
+
+            using (var source = DiscUtils.Fdi.Disk.OpenDisk(dosDisk, FileAccess.Read)) {
+                var fh = File.Create(filename);
+                var disk = Disk.InitializeFixed(fh, Ownership.None, size);
+                using (var fs = new PC98FatFileSystem(source.Content)) {
+                    FormatStream(length, disk.Content, fs);
+                    using (var partStream = disk.Partitions[0].Open()) {
+                        using (var newfs = new PC98FatFileSystem(partStream)) {
+                            CopySysFiles(fs, newfs, sysFiles);
+                        }
+                    }
+                }
+                return disk;
+            }
+        }
+
+        private static void CopySysFiles(PC98FatFileSystem fs, PC98FatFileSystem newfs, string[] sysFiles) {
+            foreach (var file in sysFiles) {
+                var compressedFile = file.Substring(0, file.Length - 1) + "_";
+                if (fs.FileExists(file)) {
+                    using (var dst = newfs.OpenFile(file, FileMode.CreateNew)) {
+                        using (var src = fs.OpenFile(file, FileMode.Open)) {
+                            src.CopyTo(dst);
+                        }
+                    }
+                } else if (fs.FileExists(compressedFile)) {
+                    using (var dst = newfs.OpenFile(file, FileMode.CreateNew)) {
+                        using (var src = fs.OpenFile(compressedFile, FileMode.Open)) {
+                            UnpackMSLZ(src, dst);
+                        }
+                    }
+                } else {
+                    throw new FileNotFoundException($"Can't find file {file} in the system disk");
+                }
+            }
+        }
+
         private static void CopySysFiles(PC98FatFileSystem fs, PC98FatFileSystem newfs) {
             var files = new string[] {@"\IO.SYS", @"\MSDOS.SYS", @"\COMMAND.COM", @"\CONFIG.SYS"};
             foreach (var file in files) {
@@ -340,6 +388,8 @@ namespace PC98GamePatcher
                 }
             }
         }
+
+        
 
         /*char window[4096];
 int pos = 4096 - 16;

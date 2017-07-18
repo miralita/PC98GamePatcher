@@ -13,7 +13,6 @@ using DiscUtils.Fat;
 using DiscUtils.Hdi;
 using DiscUtils.Partitions;
 using System.Security.Cryptography;
-using CodeIsle.LibIpsNet;
 
 namespace PatchBuilder {
     public partial class Form1 : Form {

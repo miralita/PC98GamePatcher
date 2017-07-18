@@ -18,6 +18,7 @@ namespace PC98GamePatcher
         private string _sourceName;
         private string _destinationName;
         private string _patchFile;
+        private string _sysImage;
         private PatchContainer _patch;
 
         public Form1() {
@@ -55,6 +56,7 @@ namespace PC98GamePatcher
             } else {
                 var dialog = new FolderBrowserDialog();
                 dialog.Description = "Choose a folder containing FDI images";
+                dialog.SelectedPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
                 if (dialog.ShowDialog() == DialogResult.OK) {
                     _sourceName = dialog.SelectedPath;
                     bSelectPatch.Enabled = true;
@@ -71,26 +73,22 @@ namespace PC98GamePatcher
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 try {
-                    if (LoadPatch(_patchFile)) {
+                    if (LoadPatch(dialog.FileName)) {
                         _patchFile = dialog.FileName;
-                        bApplyPatch.Enabled = true;
+                        bSelectSysDisk.Enabled = true;
                     } else {
                         MessageBox.Show("Can't load patch file",
                             "Can't load and parse the patch. Please select another file");
                     }
                 } catch (Exception ex) {
-                    MessageBox.Show("Can't load patch file",
-                        $"Error occurred during loading patch: {ex.Message}. Please select another file");
+                    MessageBox.Show($"Error occurred during loading patch: {ex.Message}. Please select another file", "Can't load patch file");
                 }
             }
         }
 
         private bool LoadPatch(string file) {
-            var serializer = new BinaryFormatter();
-            using (var fs = File.OpenRead(file)) {
-                _patch = serializer.Deserialize(fs) as PatchContainer;
-                if (_patch != null) return true;
-            }
+            _patch = PatchContainer.Load(file);
+            if (_patch != null) return true;
             return false;
         }
 
@@ -103,12 +101,53 @@ namespace PC98GamePatcher
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 _destinationName = dialog.FileName;
+                tabWizard.SelectedIndex = 1;
                 ApplyPatch();
             }
         }
 
         private void ApplyPatch() {
-            
+            try {
+                var patcher = new Patcher(_sourceIsHdi ? "" : _sourceName, _sourceIsHdi ? _sourceName : "",
+                    _destinationName, _patch, _sysImage, this);
+                patcher.Patch();
+                lProgress.Text = "Done";
+                lProgress.Hide();
+                bDone.Show();
+            } catch (Exception ex) {
+                MessageBox.Show(ex.Message, "Patch failed");
+            }
+        }
+
+        public string AskForFile(string fileName) {
+            var name = Path.GetFileName(fileName);
+            var dialog = new OpenFileDialog {
+                Title = $"Choose source for {fileName}",
+                Filter = $"{name}|{name}|All files (*.*)|*.*",
+                FilterIndex = 0,
+            };
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                return dialog.FileName;
+            } else {
+                return "";
+            }
+        }
+
+        private void bSelectSysDisk_Click(object sender, EventArgs e) {
+            var dialog = new OpenFileDialog {
+                Title = "Choose FDI image containing DOS installation files",
+                Filter = "FDI files (*.fdi)|*.fdi|All files (*.*)|*.*",
+                FilterIndex = 0,
+                DefaultExt = "fdi"
+            };
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                _sysImage = dialog.FileName;
+                bApplyPatch.Enabled = true;
+            }
+        }
+
+        private void bDone_Click(object sender, EventArgs e) {
+            this.Close();
         }
     }
 }
