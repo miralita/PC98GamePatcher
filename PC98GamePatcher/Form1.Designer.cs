@@ -25,192 +25,238 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.tabWizard = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.components = new System.ComponentModel.Container();
             this.bSelectSysDisk = new System.Windows.Forms.Button();
             this.bSelectPatch = new System.Windows.Forms.Button();
             this.bApplyPatch = new System.Windows.Forms.Button();
             this.bSelectSource = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rbFDI = new System.Windows.Forms.RadioButton();
-            this.rbHDI = new System.Windows.Forms.RadioButton();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lSysDiskSelected = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lSourceSelected = new System.Windows.Forms.Label();
+            this.lSourcePath = new System.Windows.Forms.Label();
+            this.lSysDiskPath = new System.Windows.Forms.Label();
+            this.tbDescription = new System.Windows.Forms.TextBox();
+            this.imgLogo = new System.Windows.Forms.PictureBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this.bDone = new System.Windows.Forms.Button();
-            this.lProgress = new System.Windows.Forms.Label();
-            this.tabWizard.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tabWizard
-            // 
-            this.tabWizard.Controls.Add(this.tabPage1);
-            this.tabWizard.Controls.Add(this.tabPage2);
-            this.tabWizard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabWizard.Location = new System.Drawing.Point(0, 0);
-            this.tabWizard.Name = "tabWizard";
-            this.tabWizard.SelectedIndex = 0;
-            this.tabWizard.Size = new System.Drawing.Size(248, 167);
-            this.tabWizard.TabIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Controls.Add(this.bSelectSysDisk);
-            this.tabPage1.Controls.Add(this.bSelectPatch);
-            this.tabPage1.Controls.Add(this.bApplyPatch);
-            this.tabPage1.Controls.Add(this.bSelectSource);
-            this.tabPage1.Controls.Add(this.groupBox1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(240, 141);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // bSelectSysDisk
             // 
             this.bSelectSysDisk.Enabled = false;
-            this.bSelectSysDisk.Location = new System.Drawing.Point(122, 83);
+            this.bSelectSysDisk.Location = new System.Drawing.Point(210, 95);
             this.bSelectSysDisk.Name = "bSelectSysDisk";
             this.bSelectSysDisk.Size = new System.Drawing.Size(98, 34);
             this.bSelectSysDisk.TabIndex = 5;
-            this.bSelectSysDisk.Text = "2. Select DOS installation image";
+            this.bSelectSysDisk.Text = "DOS disk";
             this.bSelectSysDisk.UseVisualStyleBackColor = true;
             this.bSelectSysDisk.Click += new System.EventHandler(this.bSelectSysDisk_Click);
             // 
             // bSelectPatch
             // 
-            this.bSelectPatch.Enabled = false;
-            this.bSelectPatch.Location = new System.Drawing.Point(20, 120);
+            this.bSelectPatch.Location = new System.Drawing.Point(2, 95);
             this.bSelectPatch.Name = "bSelectPatch";
-            this.bSelectPatch.Size = new System.Drawing.Size(98, 23);
+            this.bSelectPatch.Size = new System.Drawing.Size(98, 34);
             this.bSelectPatch.TabIndex = 4;
-            this.bSelectPatch.Text = "3. Select patch";
+            this.bSelectPatch.Text = "Patch";
             this.bSelectPatch.UseVisualStyleBackColor = true;
             this.bSelectPatch.Click += new System.EventHandler(this.bSelectPatch_Click);
             // 
             // bApplyPatch
             // 
             this.bApplyPatch.Enabled = false;
-            this.bApplyPatch.Location = new System.Drawing.Point(122, 120);
+            this.bApplyPatch.Location = new System.Drawing.Point(314, 95);
             this.bApplyPatch.Name = "bApplyPatch";
-            this.bApplyPatch.Size = new System.Drawing.Size(98, 23);
+            this.bApplyPatch.Size = new System.Drawing.Size(98, 34);
             this.bApplyPatch.TabIndex = 3;
-            this.bApplyPatch.Text = "4. Apply patch";
+            this.bApplyPatch.Text = "GO!";
             this.bApplyPatch.UseVisualStyleBackColor = true;
             this.bApplyPatch.Click += new System.EventHandler(this.bApplyPatch_Click);
             // 
             // bSelectSource
             // 
             this.bSelectSource.Enabled = false;
-            this.bSelectSource.Location = new System.Drawing.Point(20, 83);
+            this.bSelectSource.Location = new System.Drawing.Point(106, 95);
             this.bSelectSource.Name = "bSelectSource";
             this.bSelectSource.Size = new System.Drawing.Size(98, 34);
             this.bSelectSource.TabIndex = 1;
-            this.bSelectSource.Text = "1. Select source";
+            this.bSelectSource.Text = "Source";
+            this.toolTip1.SetToolTip(this.bSelectSource, "Click to select folder. Shift-click to select file");
             this.bSelectSource.UseVisualStyleBackColor = true;
             this.bSelectSource.Click += new System.EventHandler(this.bSelectSource_Click);
             // 
-            // groupBox1
+            // label1
             // 
-            this.groupBox1.Controls.Add(this.rbFDI);
-            this.groupBox1.Controls.Add(this.rbHDI);
-            this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.groupBox1.Location = new System.Drawing.Point(20, 7);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 70);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Choose source type";
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(13, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(61, 16);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Source:";
             // 
-            // rbFDI
+            // lSysDiskSelected
             // 
-            this.rbFDI.AutoSize = true;
-            this.rbFDI.Location = new System.Drawing.Point(7, 44);
-            this.rbFDI.Name = "rbFDI";
-            this.rbFDI.Size = new System.Drawing.Size(109, 17);
-            this.rbFDI.TabIndex = 1;
-            this.rbFDI.TabStop = true;
-            this.rbFDI.Text = "Set of FDI images";
-            this.rbFDI.UseVisualStyleBackColor = true;
-            this.rbFDI.CheckedChanged += new System.EventHandler(this.rbFDI_CheckedChanged);
+            this.lSysDiskSelected.AutoSize = true;
+            this.lSysDiskSelected.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lSysDiskSelected.Location = new System.Drawing.Point(126, 47);
+            this.lSysDiskSelected.Name = "lSysDiskSelected";
+            this.lSysDiskSelected.Size = new System.Drawing.Size(123, 16);
+            this.lSysDiskSelected.TabIndex = 2;
+            this.lSysDiskSelected.Text = "NOT SELECTED";
             // 
-            // rbHDI
+            // label4
             // 
-            this.rbHDI.AutoSize = true;
-            this.rbHDI.Location = new System.Drawing.Point(7, 20);
-            this.rbHDI.Name = "rbHDI";
-            this.rbHDI.Size = new System.Drawing.Size(75, 17);
-            this.rbHDI.TabIndex = 0;
-            this.rbHDI.TabStop = true;
-            this.rbHDI.Text = "HDI image";
-            this.rbHDI.UseVisualStyleBackColor = true;
-            this.rbHDI.CheckedChanged += new System.EventHandler(this.rbHDI_CheckedChanged);
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label4.Location = new System.Drawing.Point(13, 47);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(104, 16);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "MS-DOS disk:";
             // 
-            // tabPage2
+            // lSourceSelected
             // 
-            this.tabPage2.Controls.Add(this.bDone);
-            this.tabPage2.Controls.Add(this.lProgress);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(240, 141);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.lSourceSelected.AutoSize = true;
+            this.lSourceSelected.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lSourceSelected.Location = new System.Drawing.Point(126, 3);
+            this.lSourceSelected.Name = "lSourceSelected";
+            this.lSourceSelected.Size = new System.Drawing.Size(87, 16);
+            this.lSourceSelected.TabIndex = 7;
+            this.lSourceSelected.Text = "SELECTED";
+            // 
+            // lSourcePath
+            // 
+            this.lSourcePath.AutoSize = true;
+            this.lSourcePath.Location = new System.Drawing.Point(31, 26);
+            this.lSourcePath.Name = "lSourcePath";
+            this.lSourcePath.Size = new System.Drawing.Size(87, 13);
+            this.lSourcePath.TabIndex = 9;
+            this.lSourcePath.Text = "p:\\ath\\to\\source";
+            this.toolTip1.SetToolTip(this.lSourcePath, "Source Path");
+            // 
+            // lSysDiskPath
+            // 
+            this.lSysDiskPath.AutoSize = true;
+            this.lSysDiskPath.Location = new System.Drawing.Point(31, 68);
+            this.lSysDiskPath.Name = "lSysDiskPath";
+            this.lSysDiskPath.Size = new System.Drawing.Size(87, 13);
+            this.lSysDiskPath.TabIndex = 11;
+            this.lSysDiskPath.Text = "p:\\ath\\to\\source";
+            // 
+            // tbDescription
+            // 
+            this.tbDescription.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tbDescription.Enabled = false;
+            this.tbDescription.Location = new System.Drawing.Point(9, 119);
+            this.tbDescription.Multiline = true;
+            this.tbDescription.Name = "tbDescription";
+            this.tbDescription.ReadOnly = true;
+            this.tbDescription.Size = new System.Drawing.Size(410, 34);
+            this.tbDescription.TabIndex = 12;
+            this.tbDescription.Text = "Select patch";
+            this.tbDescription.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // imgLogo
+            // 
+            this.imgLogo.Location = new System.Drawing.Point(9, 3);
+            this.imgLogo.Name = "imgLogo";
+            this.imgLogo.Size = new System.Drawing.Size(410, 115);
+            this.imgLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.imgLogo.TabIndex = 13;
+            this.imgLogo.TabStop = false;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(129, 6);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(281, 12);
+            this.progressBar1.TabIndex = 14;
+            this.progressBar1.Value = 50;
+            this.progressBar1.Visible = false;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.bDone);
+            this.panel1.Controls.Add(this.progressBar2);
+            this.panel1.Controls.Add(this.bSelectSource);
+            this.panel1.Controls.Add(this.progressBar1);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.lSysDiskSelected);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.bApplyPatch);
+            this.panel1.Controls.Add(this.lSourceSelected);
+            this.panel1.Controls.Add(this.bSelectSysDisk);
+            this.panel1.Controls.Add(this.lSourcePath);
+            this.panel1.Controls.Add(this.bSelectPatch);
+            this.panel1.Controls.Add(this.lSysDiskPath);
+            this.panel1.Location = new System.Drawing.Point(7, 154);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(412, 153);
+            this.panel1.TabIndex = 15;
+            // 
+            // progressBar2
+            // 
+            this.progressBar2.Location = new System.Drawing.Point(2, 141);
+            this.progressBar2.Name = "progressBar2";
+            this.progressBar2.Size = new System.Drawing.Size(410, 12);
+            this.progressBar2.TabIndex = 16;
+            this.progressBar2.Visible = false;
             // 
             // bDone
             // 
-            this.bDone.Location = new System.Drawing.Point(74, 58);
+            this.bDone.Location = new System.Drawing.Point(174, 58);
             this.bDone.Name = "bDone";
             this.bDone.Size = new System.Drawing.Size(75, 23);
-            this.bDone.TabIndex = 1;
-            this.bDone.Text = "Done";
+            this.bDone.TabIndex = 17;
+            this.bDone.Text = "Done!";
             this.bDone.UseVisualStyleBackColor = true;
+            this.bDone.Visible = false;
             this.bDone.Click += new System.EventHandler(this.bDone_Click);
-            // 
-            // lProgress
-            // 
-            this.lProgress.Location = new System.Drawing.Point(59, 58);
-            this.lProgress.Name = "lProgress";
-            this.lProgress.Size = new System.Drawing.Size(104, 13);
-            this.lProgress.TabIndex = 0;
-            this.lProgress.Text = "Applying the patch...";
-            this.lProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(248, 167);
-            this.Controls.Add(this.tabWizard);
+            this.ClientSize = new System.Drawing.Size(427, 313);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.imgLogo);
+            this.Controls.Add(this.tbDescription);
             this.Name = "Form1";
-            this.Text = "PC98 Game Patcher";
+            this.Text = "Japanese Computers Game Patcher";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.tabWizard.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
+            this.Shown += new System.EventHandler(this.Form1_Shown);
+            ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TabControl tabWizard;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.RadioButton rbFDI;
-        private System.Windows.Forms.RadioButton rbHDI;
         private System.Windows.Forms.Button bSelectSource;
         private System.Windows.Forms.Button bApplyPatch;
-        private System.Windows.Forms.Label lProgress;
         private System.Windows.Forms.Button bSelectPatch;
         private System.Windows.Forms.Button bSelectSysDisk;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lSysDiskSelected;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lSourceSelected;
+        private System.Windows.Forms.Label lSourcePath;
+        private System.Windows.Forms.Label lSysDiskPath;
+        private System.Windows.Forms.TextBox tbDescription;
+        private System.Windows.Forms.PictureBox imgLogo;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ProgressBar progressBar2;
         private System.Windows.Forms.Button bDone;
     }
 }

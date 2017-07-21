@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using DiscUtils.Fat;
 using DiscUtils.Fdi;
 using PatchBuilder;
@@ -16,8 +18,9 @@ using PatchBuilder;
 namespace PC98GamePatcher
 {
     public partial class Form1 : Form {
+        int maxLength = 56;
         private bool _sourceIsHdi;
-        private string _sourceName;
+        private List<string> _sourceFiles = new List<string>();
         private string _destinationName;
         private string _patchFile;
         private string _sysImage;
@@ -28,82 +31,49 @@ namespace PC98GamePatcher
         }
 
         private void Form1_Load(object sender, EventArgs e) {
-            tabWizard.Appearance = TabAppearance.FlatButtons;
-            tabWizard.ItemSize = new Size(0, 1);
-            tabWizard.SelectedIndex = 0;
-        }
-
-        private void rbHDI_CheckedChanged(object sender, EventArgs e) {
-            bSelectSource.Enabled = true;
-            _sourceIsHdi = true;
-        }
-
-        private void rbFDI_CheckedChanged(object sender, EventArgs e) {
-            bSelectSource.Enabled = true;
-            _sourceIsHdi = false;
+            lSourcePath.Visible = false;
+            lSourceSelected.Text = "NOT SELECTED";
+            lSysDiskPath.Visible = false;
         }
 
         private void bSelectSource_Click(object sender, EventArgs e) {
-            if (_sourceIsHdi) {
+            if (Control.ModifierKeys == Keys.Shift) {
                 var dialog = new OpenFileDialog {
-                    Title = "Choose source HDI",
-                    Filter = "HDI files (*.hdi)|*.hdi|All files (*.*)|*.*",
+                    Title = "Choose source image",
+                    Filter = "Image files (*.hdi, *.fdi)|*.hdi;*.fdi|All files (*.*)|*.*",
                     FilterIndex = 0,
-                    DefaultExt = "hdi"
                 };
                 if (dialog.ShowDialog() == DialogResult.OK) {
-                    _sourceName = dialog.FileName;
-                    bSelectSysDisk.Enabled = true;
+                    if (IsHdd(dialog.FileName)) {
+                        CheckSourceFile(dialog.FileName);
+                    }
                 }
             } else {
                 var dialog = new FolderBrowserDialog();
-                dialog.Description = "Choose a folder containing FDI images";
+                dialog.Description = "Choose a folder containing source images";
                 dialog.SelectedPath = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
                 if (dialog.ShowDialog() == DialogResult.OK) {
-                    if (CheckFdiSource(dialog.SelectedPath)) {
-                        _sourceName = dialog.SelectedPath;
-                        bSelectSysDisk.Enabled = true;
-                    } else {
-                        MessageBox.Show("Selected directory doesn't contains FDI images");
-                    }
+                    CheckSourceFiles(dialog.SelectedPath);
                 }
             }
-        }
-
-        private bool CheckFdiSource(string dirname) {
-            var files = Directory.GetFiles(dirname);
-            var found = false;
-            var sys_found = false;
-            foreach (var file in files) {
-                if (!file.ToLower().Contains(".fdi")) continue;
-                using (var disk = Disk.OpenDisk(file, FileAccess.Read)) {
-                    using (var fs = new PC98FatFileSystem(disk.Content)) {
-                        if (fs.FileExists(@"\HDFORMAT.EXE") && fs.FileExists(@"\MSDOS.SYS")) {
-                            _sysImage = file;
-                            sys_found = true;
-                            bSelectPatch.Enabled = true;
-                        } else {
-                            found = true;
-                        }
-                    }
-                }
-                if (found && sys_found) break;
+            if (_sourceFiles.Count > 0 && !string.IsNullOrEmpty(_sysImage)) {
+                bApplyPatch.Enabled = true;
             }
-            return found;
         }
 
         private void bSelectPatch_Click(object sender, EventArgs e) {
+            RestoreInitialState();
             var dialog = new OpenFileDialog {
                 Title = "Choose patch file",
-                Filter = "Patch files (*.pc98)|*.pc98|All files (*.*)|*.*",
+                Filter = "Patch files (*.p98)|*.p98|All files (*.*)|*.*",
                 FilterIndex = 0,
-                DefaultExt = "pc98"
+                DefaultExt = "p98"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 try {
                     if (LoadPatch(dialog.FileName)) {
                         _patchFile = dialog.FileName;
-                        bApplyPatch.Enabled = true;
+                        CheckSourceFiles(Path.GetDirectoryName(_patchFile));
                     } else {
                         MessageBox.Show("Can't load patch file",
                             "Can't load and parse the patch. Please select another file");
@@ -114,13 +84,129 @@ namespace PC98GamePatcher
             }
         }
 
+        private void RestoreInitialState() {
+            lSourceSelected.Text = "NOT SELECTED";
+            lSourcePath.Text = "";
+            lSysDiskSelected.Text = "NOT SELECTED";
+            lSysDiskPath.Text = "";
+            imgLogo.Image = null;
+            tbDescription.Text = "Select patch";
+            bSelectSource.Enabled = false;
+            bSelectSysDisk.Enabled = false;
+            bApplyPatch.Enabled = false;
+            _sysImage = "";
+            _patch = null;
+            _patchFile = "";
+            _sourceFiles = new List<string>();
+        }
+
+        private void CheckSourceFile(string file) {
+            CheckSourceFiles(Path.GetDirectoryName(file), new string[]{file});
+        }
+
+        private void CheckSourceFiles(string dirname) {
+            var files = Directory.GetFiles(dirname);
+            CheckSourceFiles(dirname, files);
+        }
+
+        private void CheckSourceFiles(string dirname, string[] files) {
+            var source_files = new List<string>();
+            _patch.ClearState();
+            bSelectSysDisk.Enabled = true;
+            bSelectSource.Enabled = true;
+            //lSourceSelected.Text = "Searching for game files...";
+            progressBar1.Visible = true;
+            progressBar1.Maximum = _patch.TotalSourceFiles();
+            progressBar1.Value = 0;
+            this.Update();
+            var allSourceFiles = false;
+            foreach (var file in files) {
+                if (IsFloppy(file)) {
+                    if (string.IsNullOrEmpty(_sysImage) && Patcher.CheckSysDisk(file)) {
+                        _sysImage = file;
+                        lSysDiskPath.Text = file;
+                        lSysDiskPath.Visible = true;
+                        this.toolTip1.SetToolTip(this.lSysDiskPath, file);
+                        if (file.Length > maxLength) {
+                            var letter = Path.GetPathRoot(file);
+                            lSysDiskPath.Text = Path.Combine(letter, "...", Path.GetFileName(file));
+                        }
+                        lSysDiskSelected.Text = "OK";
+                    } else if (!allSourceFiles) {
+                        if (Patcher.CheckGameSource(_patch, file, () => {
+                            progressBar1.Value++;
+                            Update();
+                        })) {
+                            source_files.Add(file);
+                        }
+                    }
+                } else if (!allSourceFiles) {
+                    if (Patcher.CheckGameSource(_patch, file, () => {
+                        progressBar1.Value++;
+                        Update();
+                    })) {
+                        source_files.Add(file);
+                    }
+                }
+                if (_patch.FoundFiles == _patch.TotalSourceFiles()) {
+                    allSourceFiles = true;
+                }
+            }
+            if (string.IsNullOrEmpty(_sysImage)) {
+                bSelectSysDisk.Enabled = true;
+            }
+            if (_patch.FoundFiles == _patch.TotalSourceFiles()) {
+                lSourceSelected.Visible = true;
+                var fname = dirname;
+                this.toolTip1.SetToolTip(this.lSourcePath, fname);
+                if (fname.Length > maxLength) {
+                    var letter = Path.GetPathRoot(fname);
+                    fname = Path.Combine(letter, "...", Path.GetFileName(fname));
+                }
+                lSourcePath.Text = fname;
+                lSourcePath.Visible = true;
+                lSourceSelected.Text = "OK";
+                _sourceFiles = source_files;
+                if (!string.IsNullOrEmpty(_sysImage)) {
+                    bApplyPatch.Enabled = true;
+                } else {
+                    bSelectSysDisk.Enabled = true;
+                }
+            } else {
+                bSelectSource.Enabled = true;
+            }
+            progressBar1.Hide();
+        }
+
+        private bool IsFloppy(string name) {
+            return name.ToLower().EndsWith(".fdi");
+        }
+
+        private bool IsHdd(string name) {
+            return name.ToLower().EndsWith(".hdi");
+        }
+
         private bool LoadPatch(string file) {
             _patch = PatchContainer.Load(file);
-            if (_patch != null) return true;
+            if (_patch != null) {
+                if (!string.IsNullOrEmpty(_patch.Description)) {
+                    tbDescription.Text = _patch.Description;
+                }
+                if (_patch.LogoImage != null && _patch.LogoImage.Length > 0) {
+                    var ms = new MemoryStream(_patch.LogoImage);
+                    var img = new Bitmap(ms);
+                    imgLogo.Image = img;
+                }
+                return true;
+            }
             return false;
         }
 
         private void bApplyPatch_Click(object sender, EventArgs e) {
+            bApplyPatch.Enabled = false;
+            bSelectPatch.Enabled = false;
+            bSelectSource.Enabled = false;
+            bSelectSysDisk.Enabled = false;
             var dialog = new SaveFileDialog {
                 Title = "Choose HDI to save patched image",
                 Filter = "HDI files (*.hdi)|*.hdi|All files (*.*)|*.*",
@@ -129,20 +215,42 @@ namespace PC98GamePatcher
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 _destinationName = dialog.FileName;
-                tabWizard.SelectedIndex = 1;
                 ApplyPatch();
             }
         }
 
         private void ApplyPatch() {
+            progressBar2.Show();
+            progressBar2.Value = 0;
+            progressBar2.Maximum = _patch.TotalSourceFiles();
             try {
-                var patcher = new Patcher(_sourceIsHdi ? "" : _sourceName, _sourceIsHdi ? _sourceName : "",
+                var patcher = new Patcher(_sourceFiles,
                     _destinationName, _patch, _sysImage, this);
-                patcher.Patch();
-                lProgress.Text = "Done";
-                lProgress.Hide();
+                patcher.Patch(() => {
+                    progressBar2.Value++;
+                    Thread.Sleep(50);
+                    Update();
+                });
+                progressBar2.Value = progressBar2.Maximum;
+                Update();
+                lSourceSelected.Hide();
+                lSourcePath.Hide();
+                lSysDiskPath.Hide();
+                lSysDiskSelected.Hide();
+                label1.Hide();
+                label4.Hide();
+                bApplyPatch.Hide();
+                bSelectSysDisk.Hide();
+                bSelectPatch.Hide();
+                bSelectSource.Hide();
+                Update();
                 bDone.Show();
+                progressBar2.Hide();
             } catch (Exception ex) {
+                bApplyPatch.Enabled = true;
+                bSelectPatch.Enabled = true;
+                bSelectSource.Enabled = true;
+                bSelectSysDisk.Enabled = true;
                 MessageBox.Show(ex.Message, "Patch failed");
             }
         }
@@ -163,19 +271,42 @@ namespace PC98GamePatcher
 
         private void bSelectSysDisk_Click(object sender, EventArgs e) {
             var dialog = new OpenFileDialog {
-                Title = "Choose FDI image containing DOS installation files",
+                Title = "Choose image containing DOS installation files",
                 Filter = "FDI files (*.fdi)|*.fdi|All files (*.*)|*.*",
                 FilterIndex = 0,
                 DefaultExt = "fdi"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
-                _sysImage = dialog.FileName;
-                bSelectPatch.Enabled = true;
+                var file = dialog.FileName;
+                if (Patcher.CheckSysDisk(file)) {
+                    _sysImage = file;
+                    lSysDiskPath.Text = file;
+                    lSysDiskPath.Visible = true;
+                    this.toolTip1.SetToolTip(this.lSysDiskPath, file);
+                    if (file.Length > maxLength) {
+                        var letter = Path.GetPathRoot(file);
+                        lSysDiskPath.Text = Path.Combine(letter, "...", Path.GetFileName(file));
+                    }
+                    lSysDiskSelected.Text = "OK";
+                    if (_sourceFiles.Count > 0) {
+                        bApplyPatch.Enabled = true;
+                    }
+                }
             }
         }
 
         private void bDone_Click(object sender, EventArgs e) {
             this.Close();
+        }
+
+        private void Form1_Shown(object sender, EventArgs e) {
+            var path = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+            var files = Directory.GetFiles(path, "*.p98");
+            if (files.Length > 1 || files.Length == 0) return;
+            if (LoadPatch(files[0])) {
+                _patchFile = files[0];
+                CheckSourceFiles(Path.GetDirectoryName(_patchFile));
+            }
         }
     }
 }

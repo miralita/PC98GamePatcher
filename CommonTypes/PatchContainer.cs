@@ -65,11 +65,28 @@ namespace PatchBuilder
     }
     [Serializable]
     class PatchContainer {
-        public static decimal DefaultPatchContainerVersion = 1.02M;
+        public static decimal DefaultPatchContainerVersion = 1.03M;
         public decimal PatchContainerVersion;
         public List<PatchedFile> PatchData;
         public string[] SysFiles;
         public long TotalSize = 0;
+        public string Description;
+        public byte[] LogoImage;
+        public string Platform;
+
+        private int totalSourceFiles;
+        public int FoundFiles = 0;
+
+        public int TotalSourceFiles() {
+            if (totalSourceFiles == 0) {
+                foreach (var file in PatchData) {
+                    if (file.Action == PatchAction.Original || file.Action == PatchAction.Patch) {
+                        totalSourceFiles++;
+                    }
+                }
+            }
+            return totalSourceFiles;
+        }
 
         public PatchContainer() {
             PatchContainerVersion = DefaultPatchContainerVersion;
@@ -118,6 +135,14 @@ namespace PatchBuilder
             }
             return
                 $"Total files: {totalFiles}\r\nPatchedFiles: {patchedFiles}\r\nPatch length: {(patchLength / 1024):F2} Kb";
+        }
+
+        public void ClearState() {
+            foreach (var file in PatchData) {
+                file.Found = false;
+                file.Processed = false;
+                FoundFiles = 0;
+            }
         }
     }
 }

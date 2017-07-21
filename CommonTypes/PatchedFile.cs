@@ -18,6 +18,7 @@ namespace PatchBuilder
         public byte[] Patch;
         public string OriginalMd5Sum;
         public bool Processed;
+        public bool Found;
 
         public override string ToString() {
             return Name;

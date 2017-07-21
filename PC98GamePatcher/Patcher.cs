@@ -12,20 +12,26 @@ using DiscUtils.Partitions;
 using PatchBuilder;
 using System.Windows.Forms;
 using deltaq.BsDiff;
+using DiscUtils;
 
-namespace PC98GamePatcher
-{
+namespace PC98GamePatcher {
     class Patcher {
-        private string originalFDIPath;
+        private string[] originalFdi;
         private string originalHDI;
         private string outputHDI;
         private PatchContainer patchData;
         private string sysDisk;
         private Form1 form;
+        private Action progressCb;
 
-        public Patcher(string originalFdiPath, string originalHdi, string outputHdi, PatchContainer patchData, string sysDisk, Form1 form) {
-            originalFDIPath = originalFdiPath;
-            originalHDI = originalHdi;
+        public Patcher(List<string> sources, string outputHdi, PatchContainer patchData, string sysDisk, Form1 form) {
+            if (sources[0].ToLower().EndsWith(".hdi")) {
+                originalHDI = sources[0];
+                originalFdi = new string[] { };
+            } else {
+                originalHDI = "";
+                originalFdi = sources.ToArray();
+            }
             outputHDI = outputHdi;
             this.patchData = patchData;
             this.sysDisk = sysDisk;
@@ -35,31 +41,18 @@ namespace PC98GamePatcher
         public void Patch() {
             var length = DetectLength();
             var disk = StreamFormatter.CreateDisk(outputHDI, sysDisk, length, patchData.SysFiles);
-            //var disk = StreamFormatter.CreateDisk(outputHDI, sysDisk, length, patchData.SysFiles);
-            //var disk = new Disk(outputHDI);
             var dstStream = disk.Partitions[0].Open();
             var dstFat = new PC98FatFileSystem(dstStream);
             if (!string.IsNullOrEmpty(originalHDI)) {
                 using (var srcDisk = Disk.OpenDisk(originalHDI, FileAccess.Read)) {
                     using (var srcStream = srcDisk.Partitions[0].Open()) {
                         using (var srcFat = new PC98FatFileSystem(srcStream)) {
-                            //try {
-                                CopyFiles(srcFat, dstFat);
-                            /*} catch (Exception ex) {
-                                dstFat.Dispose();
-                                dstStream.Dispose();
-                                disk.Dispose();
-                                disk = new Disk(outputHDI);
-                                dstStream = disk.Partitions[0].Open();
-                                dstFat = new PC98FatFileSystem(dstStream);
-                                CopyFiles(srcFat, dstFat);
-                            }*/
+                            CopyFiles(srcFat, dstFat);
                         }
                     }
                 }
             } else {
-                var fdiFiles = Directory.GetFiles(originalFDIPath);
-                foreach (var fdi in fdiFiles) {
+                foreach (var fdi in originalFdi) {
                     if (!fdi.ToLower().EndsWith(".fdi")) continue;
                     using (var source = DiscUtils.Fdi.Disk.OpenDisk(fdi, FileAccess.Read)) {
                         using (var fs = new PC98FatFileSystem(source.Content)) {
@@ -77,10 +70,11 @@ namespace PC98GamePatcher
                 if (file.Processed) continue;
                 if (file.Action == PatchAction.Original) {
                     var srcName = FindFile(file, fileList);
-                    if (! string.IsNullOrEmpty(srcName)) {
+                    if (!string.IsNullOrEmpty(srcName)) {
                         //throw new FileNotFoundException($"Can't find file {file.Name} in original game image or checksums differ");
                         CopyFile(srcName, file.Name, srcFat, dstFat);
                         file.Processed = true;
+                        progressCb?.Invoke();
                     }
                 } else if (file.Action == PatchAction.Copy) {
                     CreateFile(file, dstFat);
@@ -90,6 +84,7 @@ namespace PC98GamePatcher
                     if (!string.IsNullOrEmpty(srcName)) {
                         ApplyPatch(srcName, file, srcFat, dstFat);
                         file.Processed = true;
+                        progressCb?.Invoke();
                     }
                 } else if (file.Action == PatchAction.Ask) {
                     var fileName = form.AskForFile(file.Name);
@@ -97,6 +92,7 @@ namespace PC98GamePatcher
                         throw new ArgumentException($"Can't continue patch without {file.Name}");
                     }
                     CopyFileFromFs(file.Name, fileName, dstFat);
+                    file.Processed = true;
                 }
             }
         }
@@ -179,14 +175,14 @@ namespace PC98GamePatcher
             }
         }
 
-        private string FindFile(PatchedFile file, Dictionary<string, string> fileList) {
+        private static string FindFile(PatchedFile file, Dictionary<string, string> fileList) {
             foreach (var f in fileList.Keys) {
                 if (file.OriginalMd5Sum == fileList[f]) return f;
             }
             return "";
         }
 
-        private void BuildChecksums(Dictionary<string, string> fileList, PC98FatFileSystem srcFat, string dir) {
+        private static void BuildChecksums(Dictionary<string, string> fileList, PC98FatFileSystem srcFat, string dir) {
             var files = srcFat.GetFiles(dir);
             foreach (var file in files) {
                 using (var s = srcFat.OpenFile(file, FileMode.Open)) {
@@ -199,7 +195,7 @@ namespace PC98GamePatcher
             }
         }
 
-        private string Md5sum(Stream file) {
+        private static string Md5sum(Stream file) {
             using (var md5 = MD5.Create()) {
                 return BitConverter.ToString(md5.ComputeHash(file)).Replace("-", "");
             }
@@ -207,21 +203,8 @@ namespace PC98GamePatcher
 
         private int DetectLength() {
             //return 40;
-            var length = patchData.TotalSize + 5 * 0x100000;
-            /*if (!string.IsNullOrEmpty(originalFDIPath)) {
-                var files = Directory.GetFiles(originalFDIPath);
-                foreach (var file in files) {
-                    if (! file.ToLower().EndsWith(".fdi")) continue;
-                    length += (int) new FileInfo(file).Length;
-                }
-                length += 0x100000; // ensure that all system data fit - add 1Mb
-            } else {
-                length = (int) new FileInfo(originalHDI).Length;
-            }
-            if (length == 0) {
-                throw new ArgumentException("Empty source files");
-            }*/
-            
+            var length = patchData.TotalSize + patchData.TotalSourceFiles() * 256 + 0x20000;
+
             var mb = 0x100000;
             if (length < 5 * mb) {
                 return 5;
@@ -238,6 +221,48 @@ namespace PC98GamePatcher
             } else {
                 throw new ApplicationException("Data too long for known HDI types");
             }
+        }
+
+        public static bool CheckSysDisk(string file) {
+            using (var disk = Disk.OpenDisk(file, FileAccess.Read)) {
+                using (var fs = new PC98FatFileSystem(disk.Content)) {
+                    if (fs.FileExists(@"\HDFORMAT.EXE") && fs.FileExists(@"\MSDOS.SYS")) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool CheckGameSource(PatchContainer patch, string file, Action cb) {
+            var found = false;
+            using (var disk = Disk.OpenDisk(file, FileAccess.Read)) {
+                SparseStream s;
+                if (file.ToLower().EndsWith(".fdi")) {
+                    s = disk.Content;
+                } else {
+                    s = disk.Partitions[0].Open();
+                }
+                using (var fs = new PC98FatFileSystem(s)) {
+                    var filelist = new Dictionary<string, string>();
+                    BuildChecksums(filelist, fs, @"\");
+                    foreach (var fdata in patch.PatchData) {
+                        if (fdata.Found) continue;
+                        if (!string.IsNullOrEmpty(FindFile(fdata, filelist))) {
+                            fdata.Found = true;
+                            cb();
+                            found = true;
+                            patch.FoundFiles++;
+                        }
+                    }
+                }
+            }
+            return found;
+        }
+
+        public void Patch(Action action) {
+            progressCb = action;
+            Patch();
         }
     }
 }

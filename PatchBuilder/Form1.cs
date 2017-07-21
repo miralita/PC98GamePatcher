@@ -140,9 +140,9 @@ namespace PatchBuilder {
         private void SavePatch(PatchContainer patchResult) {
             var dialog = new SaveFileDialog {
                 Title = "Choose where to save patch",
-                Filter = "PC98 files (*.pc98)|*.pc98|All files (*.*)|*.*",
+                Filter = "PC98 files (*.p98)|*.p98|All files (*.*)|*.*",
                 FilterIndex = 0,
-                DefaultExt = "pc98"
+                DefaultExt = "p98"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 patchResult.Save(dialog.FileName);
@@ -164,11 +164,6 @@ namespace PatchBuilder {
 
         private void bOK2_Click(object sender, EventArgs e) {
             tabWizard.SelectedIndex = 2;
-
-            var patchResult = MakePatch();
-            SavePatch(patchResult);
-            lProgress.Text = patchResult.Stat();
-            MessageBox.Show("OK");
         }
 
         private bool lvItemsCheckedGuard = false;
@@ -210,6 +205,31 @@ namespace PatchBuilder {
                 return true;
             } else {
                 return false;
+            }
+        }
+
+        private void bDescrOk_Click(object sender, EventArgs e) {
+            tabWizard.SelectedIndex = 3;
+            var patchResult = MakePatch();
+            patchResult.Description = tbDescription.Text;
+            if (!string.IsNullOrEmpty(_logoImage)) {
+                patchResult.LogoImage = File.ReadAllBytes(_logoImage);
+            }
+            SavePatch(patchResult);
+            lProgress.Text = patchResult.Stat();
+            MessageBox.Show("OK");
+        }
+
+        private string _logoImage = "";
+        private void bSelectImage_Click(object sender, EventArgs e) {
+            var dialog = new OpenFileDialog {
+                Title = "Choose image for logo",
+                Filter = "Image files (*.png, *.jpg, *.gif, *.bmp)|*.png;*.jpg;*.gif;*.bmp|All files (*.*)|*.*",
+                FilterIndex = 0,
+            };
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                _logoImage = dialog.FileName;
+                pImage.Load(dialog.FileName);
             }
         }
     }

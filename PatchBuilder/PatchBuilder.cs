@@ -61,6 +61,7 @@ namespace PatchBuilder
 
         public PatchContainer Build() {
             var patchResult = new PatchContainer();
+            patchResult.Platform = "PC-98xx";
             CheckSysFiles(patchResult);
             CheckConfigFiles(patchResult);
             CheckOriginalList(patchResult);
