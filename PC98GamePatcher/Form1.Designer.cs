@@ -54,7 +54,7 @@
             this.bSelectSysDisk.Name = "bSelectSysDisk";
             this.bSelectSysDisk.Size = new System.Drawing.Size(98, 34);
             this.bSelectSysDisk.TabIndex = 5;
-            this.bSelectSysDisk.Text = "DOS disk";
+            this.bSelectSysDisk.Text = "System disk";
             this.bSelectSysDisk.UseVisualStyleBackColor = true;
             this.bSelectSysDisk.Click += new System.EventHandler(this.bSelectSysDisk_Click);
             // 
@@ -228,6 +228,8 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.imgLogo);
             this.Controls.Add(this.tbDescription);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Japanese Computers Game Patcher";
             this.Load += new System.EventHandler(this.Form1_Load);

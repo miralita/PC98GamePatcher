@@ -40,7 +40,7 @@ namespace PC98GamePatcher
             if (Control.ModifierKeys == Keys.Shift) {
                 var dialog = new OpenFileDialog {
                     Title = "Choose source image",
-                    Filter = "Image files (*.hdi, *.fdi)|*.hdi;*.fdi|All files (*.*)|*.*",
+                    Filter = "Image files (*.hdi, *.fdi, *.d88)|*.hdi;*.fdi;*.d88|All files (*.*)|*.*",
                     FilterIndex = 0,
                 };
                 if (dialog.ShowDialog() == DialogResult.OK) {
@@ -174,12 +174,15 @@ namespace PC98GamePatcher
                 }
             } else {
                 bSelectSource.Enabled = true;
+                var msg = string.Join("\r\n", _patch.ShowNotFoundFiles());
+                MessageBox.Show(msg, "Can't find source files");
             }
             progressBar1.Hide();
         }
 
         private bool IsFloppy(string name) {
-            return name.ToLower().EndsWith(".fdi");
+            name = name.ToLower();
+            return name.EndsWith(".fdi") || name.EndsWith(".d88");
         }
 
         private bool IsHdd(string name) {
@@ -228,7 +231,6 @@ namespace PC98GamePatcher
                     _destinationName, _patch, _sysImage, this);
                 patcher.Patch(() => {
                     progressBar2.Value++;
-                    Thread.Sleep(50);
                     Update();
                 });
                 progressBar2.Value = progressBar2.Maximum;
@@ -272,9 +274,8 @@ namespace PC98GamePatcher
         private void bSelectSysDisk_Click(object sender, EventArgs e) {
             var dialog = new OpenFileDialog {
                 Title = "Choose image containing DOS installation files",
-                Filter = "FDI files (*.fdi)|*.fdi|All files (*.*)|*.*",
+                Filter = "Floppy image files (*.fdi, *.d88)|*.fdi;*.d88|All files (*.*)|*.*",
                 FilterIndex = 0,
-                DefaultExt = "fdi"
             };
             if (dialog.ShowDialog() == DialogResult.OK) {
                 var file = dialog.FileName;

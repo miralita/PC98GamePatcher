@@ -16,8 +16,7 @@ using DiscUtils;
 
 namespace PC98GamePatcher {
     class Patcher {
-        private string[] originalFdi;
-        private string originalHDI;
+        private string[] _sourceImages;
         private string outputHDI;
         private PatchContainer patchData;
         private string sysDisk;
@@ -25,13 +24,7 @@ namespace PC98GamePatcher {
         private Action progressCb;
 
         public Patcher(List<string> sources, string outputHdi, PatchContainer patchData, string sysDisk, Form1 form) {
-            if (sources[0].ToLower().EndsWith(".hdi")) {
-                originalHDI = sources[0];
-                originalFdi = new string[] { };
-            } else {
-                originalHDI = "";
-                originalFdi = sources.ToArray();
-            }
+            _sourceImages = sources.ToArray();
             outputHDI = outputHdi;
             this.patchData = patchData;
             this.sysDisk = sysDisk;
@@ -43,24 +36,28 @@ namespace PC98GamePatcher {
             var disk = StreamFormatter.CreateDisk(outputHDI, sysDisk, length, patchData.SysFiles);
             var dstStream = disk.Partitions[0].Open();
             var dstFat = new PC98FatFileSystem(dstStream);
-            if (!string.IsNullOrEmpty(originalHDI)) {
-                using (var srcDisk = Disk.OpenDisk(originalHDI, FileAccess.Read)) {
-                    using (var srcStream = srcDisk.Partitions[0].Open()) {
-                        using (var srcFat = new PC98FatFileSystem(srcStream)) {
-                            CopyFiles(srcFat, dstFat);
-                        }
-                    }
-                }
-            } else {
-                foreach (var fdi in originalFdi) {
-                    if (!fdi.ToLower().EndsWith(".fdi")) continue;
-                    using (var source = DiscUtils.Fdi.Disk.OpenDisk(fdi, FileAccess.Read)) {
+            foreach (var img in _sourceImages) {
+                if (IsFloppy(img)) {
+                    using (var source = VirtualDisk.OpenDisk(img, FileAccess.Read)) {
                         using (var fs = new PC98FatFileSystem(source.Content)) {
                             CopyFiles(fs, dstFat);
                         }
                     }
+                } else if (img.ToLower().EndsWith(".hdi")) {
+                    using (var srcDisk = Disk.OpenDisk(img, FileAccess.Read)) {
+                        using (var srcStream = srcDisk.Partitions[0].Open()) {
+                            using (var srcFat = new PC98FatFileSystem(srcStream)) {
+                                CopyFiles(srcFat, dstFat);
+                            }
+                        }
+                    }
                 }
             }
+        }
+        //2535
+        private static bool IsFloppy(string img) {
+            var name = img.ToLower();
+            return img.EndsWith(".fdi") || img.EndsWith(".d88");
         }
 
         private void CopyFiles(PC98FatFileSystem srcFat, FatFileSystem dstFat) {
@@ -238,10 +235,12 @@ namespace PC98GamePatcher {
             var found = false;
             using (var disk = Disk.OpenDisk(file, FileAccess.Read)) {
                 SparseStream s;
-                if (file.ToLower().EndsWith(".fdi")) {
+                if (IsFloppy(file)) {
                     s = disk.Content;
-                } else {
+                } else if (file.ToLower().EndsWith(".hdi")) {
                     s = disk.Partitions[0].Open();
+                } else {
+                    return false;
                 }
                 using (var fs = new PC98FatFileSystem(s)) {
                     var filelist = new Dictionary<string, string>();

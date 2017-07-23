@@ -62,6 +62,7 @@ namespace PatchBuilder
         public PatchContainer Build() {
             var patchResult = new PatchContainer();
             patchResult.Platform = "PC-98xx";
+            patchResult.NeedSystemDisk = true;
             CheckSysFiles(patchResult);
             CheckConfigFiles(patchResult);
             CheckOriginalList(patchResult);
@@ -165,6 +166,7 @@ namespace PatchBuilder
                 if (key.TrimStart('\\') == "AUTOEXEC.BAT" || key.TrimStart('\\') == "CONFIG.SYS") {
                     continue;
                 }
+                if (key.ToLower().EndsWith(@"\\CONFIG.SYS")) continue;
                 var file = new PatchedFile {
                     Name = key,
                     Action = PatchAction.Original,

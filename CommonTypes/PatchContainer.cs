@@ -73,6 +73,7 @@ namespace PatchBuilder
         public string Description;
         public byte[] LogoImage;
         public string Platform;
+        public bool NeedSystemDisk;
 
         private int totalSourceFiles;
         public int FoundFiles = 0;
@@ -143,6 +144,16 @@ namespace PatchBuilder
                 file.Processed = false;
                 FoundFiles = 0;
             }
+        }
+
+        public string[] ShowNotFoundFiles() {
+            var files = new List<string>();
+            foreach (var file in PatchData) {
+                if ((file.Action == PatchAction.Original || file.Action == PatchAction.Patch) && !file.Found) {
+                    files.Add(file.Name);
+                }
+            }
+            return files.ToArray();
         }
     }
 }
